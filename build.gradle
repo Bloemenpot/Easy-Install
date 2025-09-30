@@ -25,8 +25,9 @@ subprojects {
     repositories {
         mavenCentral()
         jcenter()
-        maven { name = "Terraformers"; url = "https://maven.terraformersmc.com/" }
-        maven { name = "Modrinth"; url = "https://api.modrinth.com/maven" }
+        maven { name = "Terraformers"; url = uri("https://maven.terraformersmc.com/") }
+        maven { name = "Modrinth"; url = uri("https://api.modrinth.com/maven") }
+        maven { name = "Architectury"; url = uri("https://maven.architectury.dev/") }
     }
 
     dependencies {
@@ -34,12 +35,17 @@ subprojects {
         mappings loom.layered {
             it.mappings("net.fabricmc:yarn:$rootProject.yarn_mappings:v2")
         }
+
         modImplementation "maven.modrinth:iris:$project.iris_version"
         include(implementation("com.github.zakgof:webp4j:0.0.2"))
         include(implementation("org.scijava:native-lib-loader:2.3.2"))
         include(implementation 'org.commonmark:commonmark:0.19.0')
         include(implementation 'org.jsoup:jsoup:1.15.4')
         include(implementation("com.github.weisj:jsvg:1.7.1"))
+
+        // JUnit 5 voor tests
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
     }
 
     java {
@@ -52,6 +58,10 @@ subprojects {
         it.options.release = 17
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -60,4 +70,10 @@ subprojects {
             }
         }
     }
+        tasks.withType(net.fabricmc.loom.task.RemapJarTask).configureEach {
+        if (project.name == "common") {
+            enabled = false
+        }
+    }
 }
+
